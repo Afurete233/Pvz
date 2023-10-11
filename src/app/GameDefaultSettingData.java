@@ -9,8 +9,11 @@ public class GameDefaultSettingData {
     public static String ATTACK_DATA_JSON = "draw/data/AttackMap.json";
     public static int DefaultCard_Start = 4;
     public static int DefaultZombieMax = 2;
-    public static int[] DefaultCard_data = { 5, 1 };
-    public static int DaveDefaultSunCont = 900;
+    public static int[] DefaultCard_data = { 3, 1 };
+    public static int DaveDefaultSunCont = 200;
     public static int ZombieAttackSleepTime = 10000;
-    public static int SunFlowerProduceSunDefaultTime = 5000;
+    public static int SunFlowerProduceSunDefaultTime = 10000;
+    public static int SunProduceSunDefaultTime = 15000;
+    public static int SunProduceSunDefaultCont = 25;
+    public static int washCardDefaultCont = 1000;
 }

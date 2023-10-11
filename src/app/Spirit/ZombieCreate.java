@@ -12,6 +12,7 @@ import javax.swing.JProgressBar;
 
 import app.Anime;
 import app.GameDefaultSettingData;
+import app.Plant.Nuts;
 
 public class ZombieCreate {
 
@@ -21,7 +22,12 @@ public class ZombieCreate {
     ImageIcon Die = new ImageIcon("draw/img/zombieation/ZombieDie2.gif");
     int Zombieswidth;
     public JProgressBar HPbar;
-    List<JLabel> array;
+    public List<JLabel> array;
+    JPanel jPanel;
+
+    public ZombieCreate(JPanel jPanel) {
+        this.jPanel = jPanel;
+    }
 
     public List<JLabel> RandomZombie(int round) {
         array = new ArrayList<>();
@@ -64,27 +70,37 @@ public class ZombieCreate {
     public void zombie_Attack(Zombie zombie, Dave dave) {
         int ATK = zombie.getATK();
         int DMG = Math.abs(dave.getDEF() - ATK);
-
+        int oldDEF = dave.getDEF();
         if (dave.getDEF() - ATK <= 0) {
             dave.setDEF(0);
         } else {
             dave.setDEF(DMG);
+            DMG = 0;
         }
 
+        int run = array.get(0).getX() - 250;
         Anime.ZombieWalkAnime_L(array.get(0),
-                GameDefaultSettingData.GAME_WIN_WIDTH / 6 * 5 - Zombieswidth - 100)
+                run)
                 .run();
 
-        dave.DEFbar.setValue(dave.getDEF());
         dave.setHP(dave.getHP() - DMG);
-        Anime.hit_animeThread(dave.DEFbar, ATK).start();
+
+        if (oldDEF > 0) {
+            Anime.hit_animeThread(dave.DEFbar, ATK).start();
+        }
+
+        if (dave.getDEF() <= 0) {
+            dave.DEFbar.setVisible(false);
+        }
+        Nuts.Nut_cracked(ATK);
+
         Anime.hit_animeThread(dave.HPbar, DMG).start();
 
         Anime.ZombieWalkAnime_R(array.get(0),
-                GameDefaultSettingData.GAME_WIN_WIDTH / 6 * 5 - Zombieswidth - 100)
+                run)
                 .run();
         if (dave.getHP() <= 0) {
-            dave.Dave_die(); 
+            dave.Dave_die(jPanel);
         }
     }
 
@@ -107,15 +123,37 @@ public class ZombieCreate {
     }
 
     public void zombie_hit(int DMG, Zombie zombie, JPanel jPanel) {
-        zombie.setHP(zombie.getHP() - DMG);
+        int hitDmg = zombie.getHP() - DMG;
+        if (hitDmg <= 0)
+            hitDmg = 0;
+        zombie.setHP(hitDmg);
 
         int wasDMG = DMG / 100;
         if (array.size() != 0)
             new Thread(() -> {
-                for (int i = 0; i < wasDMG; i++) {
-                    Anime.hit_animeThread(HPbar, DMG).start();
-                    Anime.ZombieDie_Anime(array.get(i)).run();
-                    jPanel.remove(array.get(i));
+                int old_size = array.size();
+                Anime.hit_animeThread(HPbar, DMG).start();
+                for (int i = 0; i < wasDMG && i < old_size; i++) {
+
+                    Thread thread;
+                    if (wasDMG > 1) {
+                        thread = Anime.ZombieBoomDie_Anime(array.get(i));
+                    } else {
+                        thread = Anime.ZombieDie_Anime(array.get(i));
+                    }
+
+                    try {
+                        thread.start();
+                        if (i + 1 >= old_size || i + 1 >= wasDMG)
+                            thread.join();
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+
+                for (int i = 0; i < wasDMG && i < old_size; i++) {
+                    jPanel.remove(array.get(0));
                     jPanel.repaint();
                     array.remove(0);
                 }

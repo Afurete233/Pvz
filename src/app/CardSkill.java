@@ -6,8 +6,8 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.text.StyledEditorKit.BoldAction;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -15,6 +15,8 @@ import com.google.gson.reflect.TypeToken;
 
 import app.CardSkillData.CardSkillBuff;
 import app.CardSkillData.CardSkillData;
+import app.Plant.Nuts;
+import app.Plant.SunFlowers;
 import app.Spirit.Dave;
 
 public class CardSkill {
@@ -23,11 +25,11 @@ public class CardSkill {
     CardSkillBuff cardSkillBuff;
     Dave dave;
 
-    public CardSkill(Dave dave) {
+    public CardSkill(Dave dave, JPanel jPanel) {
         this.dave = dave;
         cardSkillBuff = new CardSkillBuff();
         list = read_CardSkill();
-
+        Nuts.list = list;
     }
 
     public int PayCont(int Card_id) {
@@ -48,6 +50,15 @@ public class CardSkill {
         return false;
     }
 
+    public Boolean ishaveCont_WashCard(int Cont) {
+        int SumCont = dave.getCont() - Cont;
+        if (SumCont >= 0) {
+            return true;
+        }
+        return false;
+    }
+
+
     public int get_ATK(int Card_id) {
         CardSkillData cardSkillData = list.get(Card_id);
         int DMG = cardSkillData.getATK();
@@ -66,15 +77,23 @@ public class CardSkill {
         return dave.getCont();
     }
 
-    public void play_anime(int Card_id, JPanel jPanel) {
+    public void play_anime(int Card_id, JPanel jPanel, List<JLabel> zombielist) {
         CardSkillData cardSkillData = list.get(Card_id);
-        if (cardSkillData.getName().equals("Peashooter")) {
+        String plant_name = cardSkillData.getName();
+        Voice.anime_music(Voice.SoundPlant).start();
+        if (plant_name.equals("Peashooter")) {
             Anime.Peashooter_Attack(jPanel, 600).run();
         }
+        if (plant_name.equals("Sunflower")) {
+            SunFlowers.addSunFlowers();
+        }
+        if (plant_name.equals("CherryBomb")) {
+            Anime.CherryBoom_anime(jPanel, zombielist.get(0)).run();
+        }
+        if (plant_name.equals("Nut")) {
+            Nuts.addNuts();
+        }
     }
-
-
-
 
     public List<CardSkillData> read_CardSkill() {
         try {

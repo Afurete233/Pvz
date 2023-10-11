@@ -46,7 +46,7 @@ public class MainCenterUI extends JPanel implements MouseListener {
 
         addMain_character();
         setAttack_button();
-        setgacha_button();
+        // setgacha_button();
         setLoginBg();
         // communication();
 
@@ -154,16 +154,21 @@ public class MainCenterUI extends JPanel implements MouseListener {
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Main_jf.remove(jPanel);
-                Main_jf.add(attack);
-                Main_jf.validate();
-                Main_jf.invalidate();
-                Main_jf.repaint();
-                if (main_sw){
-                    attack.main_Thread.start();
-                    main_sw = false;
-                }
-               
+
+                if (!Anime.Anime_isRun)
+                    new Thread(() -> {
+                        add_zombiehand.run();
+                        Main_jf.remove(jPanel);
+                        Main_jf.add(attack);
+                        Main_jf.validate();
+                        Main_jf.invalidate();
+                        Main_jf.repaint();
+                        if (main_sw) {
+                            attack.main_Thread.start();
+                            main_sw = false;
+                        }
+                    }).start();
+
             }
         });
         add(button);
@@ -200,5 +205,30 @@ public class MainCenterUI extends JPanel implements MouseListener {
         // TODO Auto-generated method stub
 
     }
+
+    Thread add_zombiehand = new Thread(() -> {
+        Anime.Anime_isRun = true;
+        JLabel label = new JLabel();
+        Voice.anime_music(Voice.hahaha_sound).start();
+        label.setSize(330, 330);
+        label.setLocation(GameDefaultSettingData.GAME_WIN_WIDTH / 2 - 330 / 2,
+                GameDefaultSettingData.GAME_WIN_HEIGHT - 330);
+        add(label);
+        for (int i = 1; i <= 7; i++) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            ImageIcon icon = new ImageIcon("draw/image/zombiehand/" + i + ".jpg");
+            label.setIcon(icon);
+        }
+        try {
+            Thread.sleep(5000);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        Anime.Anime_isRun = false;
+    });
 
 }

@@ -12,7 +12,7 @@
     },
     {
         "Name": "CherryBomb",
-        "CONT": 100,
+        "CONT": 150,
         "ATK": 300,
         "DEF": 0
     },
@@ -20,6 +20,6 @@
         "Name": "Nut",
         "CONT": 50,
         "ATK": 0,
-        "DEF": 100
+        "DEF": 300
     }
 ]

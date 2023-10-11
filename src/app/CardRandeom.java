@@ -21,6 +21,7 @@ public class CardRandeom {
         Arrays.fill(isgetCard, 0);
     }
 
+    
     // public void LoadingCard() {
     //     Card card = Loding.readjson();
     //     Card_home = card.getCard_data();

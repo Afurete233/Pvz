@@ -61,7 +61,7 @@ public class UI_Demo extends JPanel {
                             Main_jf.validate();
                             Main_jf.invalidate();
                             Main_jf.repaint();
-                            add_zombiehand.start();
+                            // add_zombiehand.start();
                             break;
                         case 1:
                             break;
@@ -88,19 +88,5 @@ public class UI_Demo extends JPanel {
         g.drawImage(BG, 0, 0, this.getWidth(), this.getHeight(), this);
     }
 
-    Thread add_zombiehand =  new Thread(()->{
-        JLabel label = new JLabel();
-        label.setSize(330, 330);
-        label.setLocation(GameDefaultSettingData.GAME_WIN_WIDTH/2-330/2, GameDefaultSettingData.GAME_WIN_HEIGHT-330);
-        mainui.add(label);
-        for(int i =1;i<=7;i++){
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            ImageIcon icon  =new ImageIcon("draw/image/zombiehand/"+i+".jpg");
-            label.setIcon(icon);
-        }
-    });
+
 }

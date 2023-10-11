@@ -1,8 +1,11 @@
 package app.Spirit;
 
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import app.Anime;
 import app.GameDefaultSettingData;
+import app.Voice;
 
 import java.awt.Color;
 
@@ -68,8 +71,8 @@ public class Dave {
         return DEFbar;
     }
 
-    public void Dave_die() {
-        
+    public void Dave_die(JPanel jPanel) {
+        Anime.DeathAnimation(jPanel).start();
     }
 
 }

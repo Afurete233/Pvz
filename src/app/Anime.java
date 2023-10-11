@@ -7,7 +7,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import javazoom.jl.decoder.JavaLayerException;
+import javazoom.jl.player.Player;
+
 import java.awt.Image;
+import java.io.FileNotFoundException;
+import java.security.PublicKey;
 import java.awt.Graphics2D;
 
 public class Anime {
@@ -53,9 +58,10 @@ public class Anime {
         Anime_isRun = true;
         return new Thread(() -> {
             try {
+                Voice.anime_music_palyer(Voice.loding_sound).start();;
                 int min = 1;
                 int old_x = jLabel.getX();
-                int old_y = jLabel.getY();
+                // int old_y = jLabel.getY();
                 while (min < MAX) {
                     jLabel.setLocation(old_x - min, jLabel.getY());
                     min++;
@@ -72,6 +78,7 @@ public class Anime {
             } catch (Exception e) {
                 // TODO: handle exception
             }
+            Voice.outplayer.close();
             Anime_isRun = false;
         });
     }
@@ -99,6 +106,26 @@ public class Anime {
                 Image.SCALE_REPLICATE));
         return new Thread(() -> {
             jLabel.setLocation(jLabel.getX() - 40, jLabel.getY() - 40);
+            jLabel.setSize(Die.getIconWidth(), Die.getIconHeight());
+            jLabel.setIcon(Die);
+
+            try {
+                Thread.sleep(1500);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            Anime_isRun = false;
+        });
+    }
+
+    public static Thread ZombieBoomDie_Anime(JLabel jLabel) {
+        Anime_isRun = true;
+        ImageIcon Die = new ImageIcon("draw/img/zombieation/ZombieBoomDie.gif");
+        Die.setImage(Die.getImage().getScaledInstance(Die.getIconWidth() + 10, Die.getIconHeight() + 10,
+                Image.SCALE_REPLICATE));
+        return new Thread(() -> {
+            jLabel.setLocation(jLabel.getX() - 10, jLabel.getY() - 10);
             jLabel.setSize(Die.getIconWidth(), Die.getIconHeight());
             jLabel.setIcon(Die);
 
@@ -141,6 +168,7 @@ public class Anime {
 
     public static Thread ZombieWalkAnime_L(JLabel ZombieWalkAnime, int Walk) {
         Anime_isRun = true;
+        Voice.isMusicRun = true;
         int old_x = ZombieWalkAnime.getX();
         int old_y = ZombieWalkAnime.getY();
         Icon old = ZombieWalkAnime.getIcon();
@@ -156,6 +184,7 @@ public class Anime {
                     e.printStackTrace();
                 }
             }
+            Voice.anime_music_loop(Voice.SoundZombieAttack).start();
             ZombieWalkAnime.setIcon(ImgZombieAttack);
             try {
                 Thread.sleep(1000);
@@ -165,6 +194,7 @@ public class Anime {
             }
             ZombieWalkAnime.setIcon(old);
             Anime_isRun = false;
+            Voice.isMusicRun = false;
         });
     }
 
@@ -174,7 +204,8 @@ public class Anime {
         int old_y = ZombieWalkAnime.getY();
         Icon old = ZombieWalkAnime.getIcon();
         ImageIcon ZombieWalk = new ImageIcon("draw/img/zombieation/ZombieWalkAnime.gif");
-        ImageIcon ImgZombieAttack = new ImageIcon("draw/img/zombieation/ZombieAttack1.gif");
+        // ImageIcon ImgZombieAttack = new
+        // ImageIcon("draw/img/zombieation/ZombieAttack1.gif");
         return new Thread(() -> {
             ZombieWalkAnime.setIcon(ZombieWalk);
             for (int i = 0; i <= Walk; i++) {
@@ -187,6 +218,30 @@ public class Anime {
             }
             ZombieWalkAnime.setLocation(ZombieWalkAnime.getX(), old_y - 5);
             ZombieWalkAnime.setIcon(old);
+            Anime_isRun = false;
+        });
+    }
+
+    public static Thread CherryBoom_anime(JPanel jPanel, JLabel zombie) {
+        Anime_isRun = true;
+        ImageIcon CherryBoom = new ImageIcon("draw/img/plant/CherryBoom2.gif");
+        JLabel Cherry = new JLabel(CherryBoom);
+        Cherry.setSize(CherryBoom.getIconWidth(), CherryBoom.getIconHeight());
+        Cherry.setLocation(zombie.getX() - 100, zombie.getY() - 50);
+        Cherry.setOpaque(false);
+        jPanel.add(Cherry, 1);
+        return new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+                Voice.anime_music(Voice.SoundCherrBoom).start();
+                Thread.sleep(1000);
+
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            jPanel.remove(Cherry);
+            jPanel.repaint();
             Anime_isRun = false;
         });
     }
@@ -216,7 +271,7 @@ public class Anime {
         jPanel.add(Lpeas);
         jPanel.add(Peashooter);
         return new Thread(() -> {
-            for (int x = 200; x <= way + 5; x++) {
+            for (int x = 20; x <= way + 5; x++) {
                 Lpeas.setLocation(location_x + 20 + x, location_y);
                 try {
                     Thread.sleep(2);
@@ -228,6 +283,7 @@ public class Anime {
                     Lpeas.setIcon(ImgPeasHit);
                 }
             }
+            Voice.anime_music(Voice.SoundPlantAttack).start();
             jPanel.remove(Peashooter);
             jPanel.remove(Lpeas);
             try {
@@ -240,7 +296,47 @@ public class Anime {
         });
     }
 
-    
+    public static Thread SunFlowerSunProduceAnime(JLabel jLabel) {
+        ImageIcon SunFlower_light = new ImageIcon("draw/img/plant/SunFlower2.gif");// 向日葵发光状态
+        Icon old = jLabel.getIcon();
+        return new Thread(() -> {
+            jLabel.setIcon(SunFlower_light);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            jLabel.setIcon(old);
+        });
+    }
 
+    public static Thread DeathAnimation(JPanel jPanel) {
+        Anime_isRun = true;
+        ImageIcon ImgDeath = new ImageIcon("draw/img/ZombiesWon.gif");
+        JLabel DeathAnimation = new JLabel(ImgDeath);
+        DeathAnimation.setLocation(GameDefaultSettingData.GAME_WIN_WIDTH / 2 - ImgDeath.getIconWidth() / 2,
+                GameDefaultSettingData.GAME_WIN_HEIGHT / 2 - ImgDeath.getIconHeight() / 2);
+        jPanel.add(DeathAnimation, 1);
+        DeathAnimation.setSize(ImgDeath.getIconWidth(), ImgDeath.getIconHeight());
+        DeathAnimation.setOpaque(false);
+        Voice.anime_music(Voice.SoundZombieWon).start();
+        return new Thread(() -> {
+            // ImgDeath.setImage(ImgDeath.getImage().getScaledInstance(40, 40,
+            // Image.SCALE_DEFAULT));
+
+            for (int x = 400; x < 450; x += 5) {
+                ImgDeath.setImage(ImgDeath.getImage().getScaledInstance(x, x, Image.SCALE_SMOOTH));
+                jPanel.repaint();
+
+                try {
+                    Thread.sleep(25);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+    }
 
 }

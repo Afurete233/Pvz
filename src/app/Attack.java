@@ -1,20 +1,29 @@
 package app;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
+import app.Plant.Nuts;
+import app.Plant.SunFlowers;
 import app.Spirit.Dave;
 import app.Spirit.Zombie;
 import app.Spirit.ZombieCreate;
 
 import java.awt.Image;
+import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -30,6 +39,7 @@ public class Attack extends JPanel {
                     + GetAllSprite.getAllSprite_name()[new Random().nextInt(GetAllSprite.getAllSprite_name().length)]);
     JPanel Card_panel;
     ZombieCreate zombieCreate;
+    SunProduce sunProduce;
 
     Attack(JFrame frame, JPanel lastJPanel) {
         Main_jf = frame;
@@ -40,10 +50,13 @@ public class Attack extends JPanel {
         setbgloging();
         addMain_character();
         addCard_panel();
+        addWashCard();
         addSunCont();
         addSeedBank();
-        zombieCreate = new ZombieCreate();
-
+        zombieCreate = new ZombieCreate(this);
+        sunProduce = new SunProduce(this);
+        SunFlowers.SunFlowersJPanel(main_Dave, this, SumCont_Display);
+        sunProduce.Lodingdata(main_Dave, SumCont_Display);
         DefaultButton.ComeBackButton(this, lastJPanel, frame);
         Loding.readjson();
     }
@@ -55,7 +68,7 @@ public class Attack extends JPanel {
     void Attack_data_loging() {
         main_Dave = new Dave();
         zombie = new Zombie();
-        cardSkill = new CardSkill(main_Dave);
+        cardSkill = new CardSkill(main_Dave, this);
     }
 
     JLabel SumCont_Display;
@@ -160,16 +173,58 @@ public class Attack extends JPanel {
     }
 
     Thread main_Thread = new Thread(() -> { // 运行线程
-        // Thread Anime_bg = Anime.Anime_bg_loging(bG_JLabel, 200);
-        // if (!Anime_bg.isAlive())
-        // Anime_bg.run();
+
+
+        Thread Anime_bg = Anime.Anime_bg_loging(bG_JLabel, 200);
+        if (!Anime_bg.isAlive())
+            Anime_bg.run();
+
+        Voice.BackGroundmusic(Voice.BackGroundMusic1).start();
+        Voice.anime_music(Voice.zombieComing).start();
+
         remove(bG_JLabel);
         GetCard();
         Dave.setVisible(true);
         SeedBank.setVisible(true);
         addZombie(round);
+        Nuts.RunStartNuts_JPanel(main_Dave, this);
         zombieCreate.zombie_Attack_Thread(zombie, main_Dave).start();
+        sunProduce.RunSunProduce().start();
     });
+
+    public void addWashCard() {
+        ImageIcon Button = new ImageIcon("draw/img/Button.png");
+        JButton washCard = new JButton("<html>" + GameDefaultSettingData.washCardDefaultCont + "洗牌</html>", Button);
+        washCard.setMargin(new Insets(0, 0, 0, 0));// 设置按钮边框和标签文字之间的距离
+        // washCard.setBorder(BorderFactory.createLineBorder(Color.green));//设置边框
+        washCard.setHorizontalTextPosition(SwingConstants.CENTER);
+        washCard.setBackground(null);
+        washCard.setSize(Button.getIconWidth(), Button.getIconHeight());
+        washCard.setLocation(900, 620);
+        washCard.setForeground(Color.green);
+        washCard.setFont(new Font("黑体", Font.PLAIN, 20));
+        washCard.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (cardSkill.ishaveCont_WashCard(GameDefaultSettingData.washCardDefaultCont) && !Anime.Anime_isRun)
+                    new Thread(() -> {
+                        main_Dave.setCont(main_Dave.getCont() - GameDefaultSettingData.washCardDefaultCont);
+                        SumCont_Display.setText(main_Dave.getCont() + "");
+
+                        for (int j = 0; j < card_JLabels.size(); j++) {
+                            Card_panel.remove(card_JLabels.get(j));
+                        }
+                        card_JLabels.clear();
+                        cardRandeom = null;
+                        cardRandeom = new CardRandeom();
+                        GetCard();
+                    }).start();
+
+            }
+        });
+
+        add(washCard);
+    }
 
     List<JLabel> card_JLabels = new ArrayList<>();
 
@@ -210,11 +265,11 @@ public class Attack extends JPanel {
                         if (cardSkill.ishaveCont(Card_)) {
                             new Thread(() -> {
                                 new Thread(() -> {
-                                    cardSkill.play_anime(Card_, panel);
-                                    SumCont_Display.setText(cardSkill.PayCont(Card_) + "");
                                     Card_panel.remove(jLabel);
-                                    zombieCreate.zombie_hit(cardSkill.get_ATK(Card_), zombie, panel);
+                                    SumCont_Display.setText(cardSkill.PayCont(Card_) + "");
                                     SumCont_Display.setText(cardSkill.up_SunCont(Card_) + "");
+                                    cardSkill.play_anime(Card_, panel, zombieCreate.array);
+                                    zombieCreate.zombie_hit(cardSkill.get_ATK(Card_), zombie, panel);
                                     if (card_JLabels.size() != 0)
                                         card_JLabels.remove(jLabel);
                                     if (card_JLabels.size() == 0) {
@@ -233,10 +288,23 @@ public class Attack extends JPanel {
                                         // System.out.println(card_JLabels.get(j).getText());
                                     }
                                     card_JLabels.clear();
-                                    cardRandeom = null;
-                                    cardRandeom = new CardRandeom();
-                                    GetCard();
-                                    addZombie(++round);
+
+                                    new Thread(() -> {
+                                        CardDialog cardDialog = new CardDialog();
+                                        while (cardDialog.isSelecting) {
+                                            try {
+                                                Thread.sleep(500);
+                                            } catch (InterruptedException e1) {
+                                                // TODO Auto-generated catch block
+                                                e1.printStackTrace();
+                                            }
+                                        }
+                                        cardRandeom = null;
+                                        cardRandeom = new CardRandeom();
+                                        GetCard();
+                                        addZombie(++round);
+                                    }).start();
+
                                 }
                             }).start();
 
